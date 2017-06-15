@@ -1,0 +1,29 @@
+//
+//  UIImageView+HZYImageScanView.m
+//  CMM
+//
+//  Created by Michael-Nine on 2017/6/14.
+//  Copyright © 2017年 chemanman. All rights reserved.
+//
+
+#import "UIImageView+HZYImageScanView.h"
+#import "HZYImageScanView.h"
+
+@interface UIImageView ()<HZYImageScanViewDelegate>
+
+@end
+@implementation UIImageView (HZYImageScanView)
+- (void)enableScan {
+    self.userInteractionEnabled = YES;
+    [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showScanView)]];
+}
+    
+- (void)showScanView {
+    self.alpha = 0;
+    [HZYImageScanView showWithImages:@[self.image] beginIndex:0 fromRect:[self.superview convertRect:self.frame toView:[UIApplication sharedApplication].keyWindow] deletable:NO delegate:self];
+}
+    
+- (void)scanView:(HZYImageScanView *)scanView didEndDismissAnimationWithIndex:(NSUInteger)index {
+    self.alpha = 1;
+}
+@end
