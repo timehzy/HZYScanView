@@ -194,23 +194,22 @@
         self.animateContainerView.frame = self.fromRect;
         self.backgroundColor = [self.backgroundColor colorWithAlphaComponent:0];
     } completion:^(BOOL finished) {
-        if ([self.delegate respondsToSelector:@selector(scanView:didEndDismissAnimationWithIndex:)]) {
-            [self.delegate scanView:self didEndDismissAnimationWithIndex:curIndex.item];
+        if ([self.delegate respondsToSelector:@selector(scanView:didEndDismiss:atIndex:)]) {
+            [self.delegate scanView:self didEndDismiss:YES atIndex:curIndex.item];
         }
         [self removeFromSuperview];
     }];
- //   if ([self.delegate respondsToSelector:@selector(scanView:scanDidCompleteWithDelete:)]) {
-   //     [self.delegate scanView:self scanDidCompleteWithDelete:self.deleteIndexArray];
-    //}
 }
 
 - (void)configCollectionView {
+    CGRect itemFrame = self.bounds;
+    itemFrame.size.width += 16;
     UICollectionViewFlowLayout *layout = [UICollectionViewFlowLayout new];
-    layout.itemSize = self.bounds.size;
+    layout.itemSize = itemFrame.size;
     layout.minimumLineSpacing = 0;
     layout.minimumInteritemSpacing = 0;
     layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:self.bounds collectionViewLayout:layout];
+    UICollectionView *collectionView = [[UICollectionView alloc] initWithFrame:itemFrame collectionViewLayout:layout];
     collectionView.bounces = NO;
     collectionView.pagingEnabled = YES;
     collectionView.showsVerticalScrollIndicator = NO;
@@ -316,6 +315,10 @@
         self.animateContainerView.hidden = YES;
         self.collectionView.hidden = NO;
         [self.animateContainerView.subviews.firstObject removeFromSuperview];
+        NSIndexPath *curIndex = [self.collectionView indexPathsForVisibleItems].firstObject;
+        if ([self.delegate respondsToSelector:@selector(scanView:didEndDismiss:atIndex:)]) {
+            [self.delegate scanView:self didEndDismiss:YES atIndex:curIndex.item];
+        }
     }];
 }
 
@@ -384,6 +387,7 @@
 @implementation hzy_CollectionViewCell{
     UIImageView *_imageView;
 }
+
 - (instancetype)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         [self configUI];
@@ -413,10 +417,6 @@
 #pragma mark - UIScrollViewDelegate
 - (UIView *)viewForZoomingInScrollView:(UIScrollView *)scrollView {
     return _imageView;
-}
-
-- (void)scrollViewDidEndZooming:(UIScrollView *)scrollView withView:(UIView *)view atScale:(CGFloat)scale {
-    
 }
 
 #pragma mark - getter & setter

@@ -20,7 +20,7 @@
  */
 - (CGRect)imageViewFrameAtIndex:(NSUInteger)index forScanView:(HZYImageScanView *)scanView;
 - (void)scanView:(HZYImageScanView *)scanView imageDidDelete:(NSInteger)index;
-- (void)scanView:(HZYImageScanView *)scanView didEndDismissAnimationWithIndex:(NSUInteger)index;
+- (void)scanView:(HZYImageScanView *)scanView didEndDismiss:(BOOL)dismissed atIndex:(NSUInteger)index;
 - (void)scanView:(HZYImageScanView *)scanView willDismissAtIndex:(NSInteger)index;
 @end
 
