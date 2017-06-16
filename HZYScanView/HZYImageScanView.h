@@ -20,14 +20,12 @@
  */
 - (CGRect)imageViewFrameAtIndex:(NSUInteger)index forScanView:(HZYImageScanView *)scanView;
 - (void)scanView:(HZYImageScanView *)scanView imageDidDelete:(NSInteger)index;
-- (void)scanView:(HZYImageScanView *)scanView didEndDismiss:(BOOL)dismissed atIndex:(NSUInteger)index;
-- (void)scanView:(HZYImageScanView *)scanView willDismissAtIndex:(NSInteger)index;
 @end
 
 @interface HZYImageScanView : UIView
 
 /**
- 弹出全屏图片浏览视图
+ 弹出全屏图片浏览视图（推荐使用此方法）
 
  @param imageArray 可以是url也可以是image，也可以二者混合
  @param index 默认展示的是数组的第几个
@@ -36,4 +34,14 @@
  @param delegate 代理
  */
 + (void)showWithImages:(NSArray *)imageArray beginIndex:(NSUInteger)index fromRect:(CGRect)rect deletable:(BOOL)deletable delegate:(id<HZYImageScanViewDelegate>)delegate;
+
+/// 详细设置模式
++ (instancetype)scanViewWithImageArray:(NSArray *)imageArray;
+@property (nonatomic, weak) id<HZYImageScanViewDelegate> delegate;
+@property (nonatomic, assign) NSUInteger beginIndex;
+@property (nonatomic, assign) CGRect fromRect;
+/// 触发全屏浏览的imageView的周边的背景色
+@property (nonatomic, strong) UIColor *fromBackgroundColor;
+@property (nonatomic, assign) BOOL deletable;
+- (void)showWithAnimation;
 @end

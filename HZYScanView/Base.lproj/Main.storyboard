@@ -45,9 +45,8 @@
                                     <outletCollection property="gestureRecognizers" destination="g5d-LF-JBT" appends="YES" id="lGd-m4-64X"/>
                                 </connections>
                             </imageView>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3eh-qb-YCp">
-                                <rect key="frame" x="136" y="575" width="104" height="30"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3eh-qb-YCp">
+                                <rect key="frame" x="136" y="617" width="104" height="30"/>
                                 <state key="normal" title="category demo"/>
                                 <connections>
                                     <segue destination="ynz-85-sHn" kind="show" id="UCc-AO-aKg"/>
@@ -55,6 +54,10 @@
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="3eh-qb-YCp" secondAttribute="bottom" constant="20" id="OkU-Q7-f2S"/>
+                            <constraint firstItem="3eh-qb-YCp" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="cRA-CY-5Ea"/>
+                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="COO-Zj-3KH"/>
                     <connections>

@@ -47,14 +47,6 @@
     }
 }
 
-- (void)scanView:(HZYImageScanView *)scanView willDismissAtIndex:(NSInteger)index {
-    [self setImageViewHidden:YES atIndex:index];
-}
-
-- (void)scanView:(HZYImageScanView *)scanView didEndDismissAnimationWithIndex:(NSUInteger)index {
-    [self setImageViewHidden:NO atIndex:index];
-}
-
 #pragma mark - private
 - (void)showScanViewForView:(UIView *)view atIndex:(NSUInteger)index {
     view.hidden = YES;

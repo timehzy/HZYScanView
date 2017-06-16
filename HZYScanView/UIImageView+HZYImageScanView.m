@@ -19,11 +19,6 @@
 }
     
 - (void)showScanView {
-    self.alpha = 0;
     [HZYImageScanView showWithImages:@[self.image] beginIndex:0 fromRect:[self.superview convertRect:self.frame toView:[UIApplication sharedApplication].keyWindow] deletable:NO delegate:self];
-}
-    
-- (void)scanView:(HZYImageScanView *)scanView didEndDismissAnimationWithIndex:(NSUInteger)index {
-    self.alpha = 1;
 }
 @end
