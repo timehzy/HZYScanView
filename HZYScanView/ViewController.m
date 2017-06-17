@@ -8,19 +8,23 @@
 
 #import "ViewController.h"
 #import "HZYImageScanView.h"
+#import "SDWebImageManager.h"
 
 @interface ViewController ()<HZYImageScanViewDelegate>
 @property (weak, nonatomic) IBOutlet UIImageView *iamgeView1;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView2;
 @property (weak, nonatomic) IBOutlet UIImageView *imageView3;
 @property (nonatomic, copy) NSArray *imageArray;
+@property (nonatomic, copy) NSArray *thumArray;
 @end
 
 @implementation ViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.imageArray = @[[UIImage imageNamed:@"1"], [UIImage imageNamed:@"2"], [UIImage imageNamed:@"3"]];
+    [[SDWebImageManager sharedManager].imageCache clearDisk];
+    self.imageArray = @[[UIImage imageNamed:@"1"], @"http://www.bz55.com/uploads/allimg/150803/140-150P3150136.jpg", [UIImage imageNamed:@"3"]];
+    self.thumArray = @[[UIImage imageNamed:@"1"], @"http://www.bz55.com/uploads/allimg/150803/140-150P3150136.jpg", [UIImage imageNamed:@"3"]];
 }
 
 #pragma mark - action
@@ -53,7 +57,7 @@
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         view.hidden = NO;
     });
-    [HZYImageScanView showWithImages:self.imageArray beginIndex:index fromRect:[self.view convertRect:view.frame toView:[UIApplication sharedApplication].keyWindow] deletable:NO delegate:self];
+    [HZYImageScanView showWithImages:self.imageArray thumbs:self.thumArray beginIndex:index deletable:NO delegate:self];
 }
 
 - (void)setImageViewHidden:(BOOL)hidden atIndex:(NSUInteger)index {

@@ -14,46 +14,57 @@
 
 @interface HZYImageScanView ()<UICollectionViewDelegate, UICollectionViewDataSource>
 @property (nonatomic, strong) NSMutableArray *imageArray;
+@property (nonatomic, strong) NSMutableArray *thumbArray;
+@property (nonatomic, readonly) CGRect fromRect;
 @property (nonatomic, weak) UICollectionView *collectionView;
 @property (nonatomic, weak) UIView *backgroundView;
 @property (nonatomic, weak) UIView *navigationBar;
 @property (nonatomic, weak) UIView *animateContainerView;
 @property (nonatomic, weak) UIView *originMaskView;
 @property (nonatomic, weak) UILabel *titleLabel;
-@property (nonatomic, assign) CGSize animateImageViewSmallSize;
-@property (nonatomic, assign) CGSize animateImageViewBigSize;
 @property (nonatomic, assign) BOOL navigationBarVisible;
-
+@property (nonatomic, assign) NSUInteger currentIndex;
 @end
 
 @interface hzy_CollectionViewCell : UICollectionViewCell<UIScrollViewDelegate>
 @property (nonatomic, strong) UIImage *image;
 @property (nonatomic, strong) NSString *url;
+@property (nonatomic, strong) UIImage *thumbImage;
+@property (nonatomic, strong) NSString *thumbUrl;
 @property (nonatomic, copy) void(^singleTapHandler)();
 @end
 
 @implementation HZYImageScanView
 #pragma mark - Life Cycle
-- (instancetype)initWithFrame:(CGRect)frame fromRect:(CGRect)rect deletable:(BOOL)deletable {
+- (instancetype)initWithFrame:(CGRect)frame deletable:(BOOL)deletable {
     if (self = [super initWithFrame:frame]) {
-        _fromRect = rect;
         _deletable = deletable;
+        _currentIndex = -1;
         [self configUI];
     }
     return self;
 }
 
 #pragma mark - Public Method
-+ (void)showWithImages:(NSArray *)imageArray beginIndex:(NSUInteger)index fromRect:(CGRect)rect deletable:(BOOL)deletable delegate:(id<HZYImageScanViewDelegate>)delegate {
-    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds fromRect:rect deletable:deletable];
++ (void)showWithImages:(NSArray *)imageArray beginIndex:(NSUInteger)index deletable:(BOOL)deletable delegate:(id<HZYImageScanViewDelegate>)delegate {
+    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds deletable:deletable];
     scanView.beginIndex = index;
     scanView.imageArray = [imageArray mutableCopy];
     scanView.delegate = delegate;
     [scanView showWithAnimation];
 }
 
++ (void)showWithImages:(NSArray *)imageArray thumbs:(NSArray *)thumbsArray beginIndex:(NSUInteger)index deletable:(BOOL)deletable delegate:(id<HZYImageScanViewDelegate>)delegate {
+    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds deletable:deletable];
+    scanView.beginIndex = index;
+    scanView.imageArray = [imageArray mutableCopy];
+    scanView.thumbArray = [thumbsArray mutableCopy];
+    scanView.delegate = delegate;
+    [scanView showWithAnimation];
+}
+
 + (instancetype)scanViewWithImageArray:(NSArray *)imageArray {
-    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds fromRect:CGRectMake(kScreenWidth / 2, kScreenHeight / 2, 0, 0) deletable:NO];
+    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds deletable:NO];
     scanView.imageArray = [imageArray mutableCopy];
     return scanView;
 }
@@ -69,40 +80,31 @@
     [[UIApplication sharedApplication].keyWindow addSubview:self];
     [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:self.beginIndex inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
     UIImageView *imageView = [self imageViewWithIndex:self.beginIndex];
-    [self calculateAnimateImageViewSmallSize:imageView];
-    CGFloat height = self.animateImageViewSmallSize.height;
-    CGFloat width = self.animateImageViewSmallSize.width;
-    imageView.frame = CGRectMake((self.animateContainerView.frame.size.width - width) / 2, (self.animateContainerView.frame.size.height - height) / 2, width, height);
+    imageView.frame = [self calculateImageViewSmallFrameForImage:imageView.image];
     [self.animateContainerView addSubview:imageView];
-    [self caculateFullScreenImageViewSize:imageView];
-    height = self.animateImageViewBigSize.height;
-    width = self.animateImageViewBigSize.width;
+    CGRect fullScreenRect = [self calculateImageViewFullScreenFrameForImage:imageView.image];
+    [self addMaskViewForOriginView];
     [UIView animateWithDuration:.25 animations:^{
         self.animateContainerView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-        imageView.frame = CGRectMake((kScreenWidth - width) / 2, (kScreenHeight - height) / 2, width, height);
+        imageView.frame = fullScreenRect;
         self.backgroundView.backgroundColor = [self.backgroundView.backgroundColor colorWithAlphaComponent:1];
     } completion:^(BOOL finished) {
         self.collectionView.hidden = NO;
         self.animateContainerView.hidden = YES;
         [imageView removeFromSuperview];
         [self switchNavigationBar];
+        [self.originMaskView removeFromSuperview];
     }];
 }
 
 - (void)dismissWithAnimation {
-    NSIndexPath *curIndex = [self.collectionView indexPathsForVisibleItems].firstObject;
     UIImageView *imageView = self.animateContainerView.subviews.firstObject;
-    if ([self.delegate respondsToSelector:@selector(imageViewFrameAtIndex:forScanView:)]) {
-        self.fromRect = [self.delegate imageViewFrameAtIndex:curIndex.item forScanView:self];
-    }
     if (self.navigationBarVisible) {
         [self switchNavigationBar];
     }
-    [self calculateAnimateImageViewSmallSize:imageView];
-    CGFloat height = self.animateImageViewSmallSize.height;
-    CGFloat width = self.animateImageViewSmallSize.width;
+    CGRect smallFrame = [self calculateImageViewSmallFrameForImage:imageView.image];
     [UIView animateWithDuration:0.25 animations:^{
-        imageView.frame = CGRectMake((self.fromRect.size.width - width) / 2, (self.fromRect.size.height - height) / 2, width, height);
+        imageView.frame = smallFrame;
         self.animateContainerView.transform = CGAffineTransformIdentity;
         self.animateContainerView.frame = self.fromRect;
         self.backgroundView.backgroundColor = [self.backgroundView.backgroundColor colorWithAlphaComponent:0];
@@ -138,10 +140,6 @@
 }
 
 - (void)addMaskViewForOriginView {
-    NSIndexPath *curIndex = [self.collectionView indexPathsForVisibleItems].firstObject;
-    if ([self.delegate respondsToSelector:@selector(imageViewFrameAtIndex:forScanView:)]) {
-        self.fromRect = [self.delegate imageViewFrameAtIndex:curIndex.item forScanView:self];
-    }
     UIView *view = [[UIView alloc] initWithFrame:self.fromRect];
     view.backgroundColor = [UIColor whiteColor];
     [self addSubview:view];
@@ -154,59 +152,72 @@
     self.collectionView.hidden = YES;
     NSIndexPath *curIndex = [self.collectionView indexPathsForVisibleItems].firstObject;
     UIImageView *imageView = [self imageViewWithIndex:curIndex.item];
-    [self caculateFullScreenImageViewSize:imageView];
-    imageView.frame = CGRectMake((kScreenWidth - self.animateImageViewBigSize.width) / 2, (kScreenHeight - self.animateImageViewBigSize.height) / 2, self.animateImageViewBigSize.width, self.animateImageViewBigSize.height);
+    imageView.frame = [self calculateImageViewFullScreenFrameForImage:imageView.image];
     [self.animateContainerView addSubview:imageView];
 }
 
 - (UIImageView *)imageViewWithIndex:(NSUInteger)index {
     UIImageView *imageView;
-    if ([self.imageArray[index] isKindOfClass:[UIImage class]]) {
-        imageView = [[UIImageView alloc] initWithImage:self.imageArray[index]];
+    if (self.thumbArray.count > 0) {
+        if ([self.thumbArray[index] isKindOfClass:[UIImage class]]) {
+            imageView = [[UIImageView alloc] initWithImage:self.thumbArray[index]];
+        }else{
+            imageView = [UIImageView new];
+            [imageView sd_setImageWithURL:self.thumbArray[index] completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+                imageView.frame = [self calculateImageViewSmallFrameForImage:image];
+            }];
+        }
     }else{
-        imageView = [self downloadImageForImageViewAtIndex:index];
+        if ([self.imageArray[index] isKindOfClass:[UIImage class]]) {
+            imageView = [[UIImageView alloc] initWithImage:self.imageArray[index]];
+        }else{
+            imageView = [UIImageView new];
+        }
     }
     return imageView;
 }
 
-- (void)caculateFullScreenImageViewSize:(UIImageView *)imageView {
+- (CGRect)calculateImageViewFullScreenFrameForImage:(UIImage *)image {
+    if (!image) {
+        return CGRectZero;
+    }
     CGFloat height;
     CGFloat width;
-    if (imageView.bounds.size.width / imageView.bounds.size.height > kScreenWidth / kScreenHeight) {
+    CGSize size = image.size;
+    if (image.imageOrientation == UIImageOrientationLeft || image.imageOrientation == UIImageOrientationRight) {
+        size.width = image.size.height;
+        size.height = image.size.width;
+    }
+    if (size.width / size.height > kScreenWidth / kScreenHeight) {
         //宽超出，将宽缩放到屏幕宽度，高度自适应
         width = kScreenWidth;
-        height = kScreenWidth / imageView.bounds.size.width * imageView.bounds.size.height;
+        height = kScreenWidth / size.width * size.height;
     }else{
         height = kScreenHeight;
-        width = kScreenHeight / imageView.bounds.size.height * imageView.bounds.size.width;
+        width = kScreenHeight / size.height * size.width;
     }
-    self.animateImageViewBigSize = CGSizeMake(width, height);
+    return CGRectMake((kScreenWidth - width) / 2, (kScreenHeight - height) / 2, width, height);
 }
 
-- (void)calculateAnimateImageViewSmallSize:(UIImageView *)imageView {
+- (CGRect)calculateImageViewSmallFrameForImage:(UIImage *)image {
+    if (!image) {
+        return CGRectZero;
+    }
     CGFloat height;
     CGFloat width;
-    if (imageView.bounds.size.width > imageView.bounds.size.height) {
+    CGSize size = image.size;
+    if (image.imageOrientation == UIImageOrientationLeft || image.imageOrientation == UIImageOrientationRight) {
+        size.width = image.size.height;
+        size.height = image.size.width;
+    }
+    if (size.width > size.height) {
         height = self.fromRect.size.height;
-        width = height / imageView.bounds.size.height * imageView.bounds.size.width;
+        width = height / size.height * size.width;
     }else {
         width = self.fromRect.size.width;
-        height = width / imageView.bounds.size.width * imageView.bounds.size.height;
+        height = width / size.width * size.height;
     }
-    self.animateImageViewSmallSize = CGSizeMake(width, height);
-}
-
-- (UIImageView *)downloadImageForImageViewAtIndex:(NSUInteger)index {
-    __block UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.fromRect.size.width, self.fromRect.size.height)];
-    [imageView sd_setImageWithURL:[NSURL URLWithString:self.imageArray[index]]completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
-        if (cacheType == SDImageCacheTypeNone) {
-            [self caculateFullScreenImageViewSize:imageView];
-            imageView.frame = CGRectMake(0, (kScreenHeight - imageView.bounds.size.height) / 2, self.animateImageViewBigSize.width, self.animateImageViewBigSize.height);
-        }else{
-            imageView.frame = CGRectMake(0, 0, image.size.width, image.size.height);
-        }
-    }];
-    return imageView;
+    return CGRectMake((self.fromRect.size.width - width) / 2, (self.fromRect.size.height - height) / 2, width, height);
 }
 
 - (void)configCollectionView {
@@ -311,7 +322,6 @@
         self.backgroundView.backgroundColor = [self.backgroundView.backgroundColor colorWithAlphaComponent:scale];
         [gesture setTranslation:CGPointZero inView:self];
     }else if (gesture.state == UIGestureRecognizerStateEnded || gesture.state == UIGestureRecognizerStateCancelled) {
-        NSLog(@"%@", NSStringFromCGPoint([gesture velocityInView:self]));
         if (scale < .8 || [gesture velocityInView:self].y > 150) {
             [self dismissWithAnimation];
         }else{
@@ -343,6 +353,13 @@
     if ([self.imageArray[indexPath.item] isKindOfClass:[UIImage class]]) {
         cell.image = self.imageArray[indexPath.item];
     }else{
+        if (self.thumbArray.count > 0) {
+            if ([self.thumbArray[indexPath.item] isKindOfClass:[UIImage class]]) {
+                cell.thumbImage = self.thumbArray[indexPath.item];
+            }else{
+                cell.thumbUrl = self.thumbArray[indexPath.item];
+            }
+        }
         cell.url = self.imageArray[indexPath.item];
     }
     __weak typeof(self)weakSelf = self;
@@ -355,7 +372,8 @@
 
 #pragma mark - UICollectionViewDelegate
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", [self.collectionView indexPathsForVisibleItems].lastObject.item + 1, self.imageArray.count];
+    self.currentIndex = [self.collectionView indexPathsForVisibleItems].lastObject.item;
+    self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", self.currentIndex + 1, self.imageArray.count];
 }
 
 #pragma mark - Getter & Setter
@@ -393,6 +411,17 @@
         _fromBackgroundColor = [UIColor whiteColor];
     }
     return _fromBackgroundColor;
+}
+
+- (CGRect)fromRect {
+    NSUInteger curIndex = self.currentIndex;
+    if (curIndex == -1) {
+        curIndex = self.beginIndex;
+    }
+    if ([self.delegate respondsToSelector:@selector(imageViewFrameAtIndex:forScanView:)]) {
+        return [self.delegate imageViewFrameAtIndex:curIndex forScanView:self];
+    }
+    return CGRectZero;
 }
 @end
 
@@ -432,15 +461,49 @@
 }
 
 #pragma mark - getter & setter
-- (void)setImage:(UIImage *)image {
-    _imageView.image = image;
-}
-    
 - (void)setUrl:(NSString *)url {
-    [_imageView sd_setImageWithURL:[NSURL URLWithString:url]];
+    NSURL *imageUrl;
+    if ([url isKindOfClass:[NSURL class]]) {
+        imageUrl = (NSURL *)url;
+    }else{
+        imageUrl = [NSURL URLWithString:url];
+    }
+    [_imageView sd_setImageWithURL:imageUrl placeholderImage:self.thumbImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        _imageView.frame = [self calculateImageViewFullScreenFrameForImage:image];
+    }];
 }
 
-- (UIImage *)image {
-    return _imageView.image;
+- (void)setImage:(UIImage *)image {
+    _imageView.image = image;
+    _imageView.frame = [self calculateImageViewFullScreenFrameForImage:image];
+}
+
+- (void)setThumbUrl:(NSString *)thumbUrl {
+    self.thumbImage = [[SDWebImageManager sharedManager].imageCache imageFromMemoryCacheForKey:thumbUrl];
+    if (!self.thumbImage) {
+        self.thumbImage = [[SDWebImageManager sharedManager].imageCache imageFromDiskCacheForKey:thumbUrl];
+    }
+}
+
+- (CGRect)calculateImageViewFullScreenFrameForImage:(UIImage *)image {
+    if (!image) {
+        return CGRectZero;
+    }
+    CGFloat height;
+    CGFloat width;
+    CGSize size = image.size;
+    if (image.imageOrientation == UIImageOrientationLeft || image.imageOrientation == UIImageOrientationRight) {
+        size.width = image.size.height;
+        size.height = image.size.width;
+    }
+    if (size.width / size.height > kScreenWidth / kScreenHeight) {
+        //宽超出，将宽缩放到屏幕宽度，高度自适应
+        width = kScreenWidth;
+        height = kScreenWidth / size.width * size.height;
+    }else{
+        height = kScreenHeight;
+        width = kScreenHeight / size.height * size.width;
+    }
+    return CGRectMake((kScreenWidth - width) / 2, (kScreenHeight - height) / 2, width, height);
 }
 @end

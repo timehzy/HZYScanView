@@ -19,6 +19,6 @@
 }
     
 - (void)showScanView {
-    [HZYImageScanView showWithImages:@[self.image] beginIndex:0 fromRect:[self.superview convertRect:self.frame toView:[UIApplication sharedApplication].keyWindow] deletable:NO delegate:self];
+    [HZYImageScanView showWithImages:@[self.image] beginIndex:0 deletable:NO delegate:self];
 }
 @end
