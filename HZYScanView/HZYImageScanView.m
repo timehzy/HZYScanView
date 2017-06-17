@@ -24,6 +24,7 @@
 @property (nonatomic, weak) UILabel *titleLabel;
 @property (nonatomic, assign) BOOL navigationBarVisible;
 @property (nonatomic, assign) NSUInteger currentIndex;
+@property (nonatomic, assign) BOOL canDragToDismss;
 @end
 
 @interface hzy_CollectionViewCell : UICollectionViewCell<UIScrollViewDelegate>
@@ -41,6 +42,7 @@
         _deletable = deletable;
         _currentIndex = -1;
         _enableNavigationBar = YES;
+        _canDragToDismss = YES;
         [self configUI];
     }
     return self;
@@ -315,6 +317,9 @@
 }
 
 - (void)panGesture:(UIPanGestureRecognizer *)gesture {
+    if (!self.canDragToDismss) {
+        return;
+    }
     CGPoint point = [gesture translationInView:self.animateContainerView];
     CGPoint movedPoint = CGPointMake(self.animateContainerView.center.x+point.x, self.animateContainerView.center.y + point.y);
     CGFloat change = fabs(movedPoint.y - self.bounds.size.height / 2);//图片到屏幕中间的距离
@@ -445,6 +450,7 @@
 @implementation hzy_CollectionViewCell{
     UIImageView *_imageView;
     UIActivityIndicatorView *_loadIndicator;
+    UIScrollView *_scrollView;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -455,14 +461,14 @@
 }
 
 - (void)configUI {
-    UIScrollView *scrollView = [[UIScrollView alloc] initWithFrame:[UIScreen mainScreen].bounds];
-    scrollView.zoomScale = 2;
-    scrollView.maximumZoomScale = 2;
-    scrollView.delegate = self;
-    [self.contentView addSubview:scrollView];
-    _imageView = [[UIImageView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    _scrollView = [[UIScrollView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    _scrollView.maximumZoomScale = 2;
+    _scrollView.delegate = self;
+    _scrollView.contentInset = UIEdgeInsetsZero;
+    [self.contentView addSubview:_scrollView];
+    _imageView = [UIImageView new];
     _imageView.contentMode = UIViewContentModeScaleAspectFit;
-    [scrollView addSubview:_imageView];
+    [_scrollView addSubview:_imageView];
     [self addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(singleTapAction)]];
 }
 
@@ -478,6 +484,12 @@
     return _imageView;
 }
 
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView{
+    CGFloat offsetX = (scrollView.bounds.size.width > scrollView.contentSize.width)?(scrollView.bounds.size.width - scrollView.contentSize.width)/2 : 0.0;
+    CGFloat offsetY = (scrollView.bounds.size.height > scrollView.contentSize.height)?(scrollView.bounds.size.height - scrollView.contentSize.height)/2 : 0.0;
+    _imageView.center = CGPointMake(scrollView.contentSize.width/2 + offsetX,scrollView.contentSize.height/2 + offsetY);
+}
+
 #pragma mark - getter & setter
 - (void)setUrl:(NSString *)url {
     NSURL *imageUrl;
@@ -489,9 +501,12 @@
     
     _loadIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
     _loadIndicator.hidesWhenStopped = YES;
-    _loadIndicator.center = _imageView.center;
+    _loadIndicator.center = self.contentView.center;
     [_loadIndicator startAnimating];
     [self.contentView addSubview:_loadIndicator];
+    if (self.thumbImage) {
+        _imageView.frame = [self calculateImageViewFullScreenFrameForImage:self.thumbImage];
+    }
     [_imageView sd_setImageWithURL:imageUrl placeholderImage:self.thumbImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
         [_loadIndicator stopAnimating];
         _imageView.frame = [self calculateImageViewFullScreenFrameForImage:image];
@@ -529,6 +544,7 @@
         height = kScreenHeight;
         width = kScreenHeight / size.height * size.width;
     }
+    _scrollView.contentSize = CGSizeMake(width, height);
     return CGRectMake((kScreenWidth - width) / 2, (kScreenHeight - height) / 2, width, height);
 }
 @end

@@ -3,7 +3,7 @@
 //  CMM
 //
 //  Created by Michael-Nine on 2017/6/14.
-//  Copyright © 2017年 chemanman. All rights reserved.
+//  Copyright © 2017年 郝振壹. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
@@ -11,7 +11,6 @@
 @class HZYImageScanView;
 @protocol HZYImageScanViewDelegate <NSObject>
 @optional;
-
 /**
  当scanView需要用到外部view的frame用于完成dismiss动画时，该方法会被调用
 
@@ -28,8 +27,8 @@
  弹出全屏图片浏览视图，无缩略图和大图之分的情况下使用
 
  @param imageArray 可以是url也可以是image，也可以二者混合
- @param index 默认展示的是数组的第几个
- @param deletable 是否支持删除操作
+ @param index 首次展示的是第几张图片
+ @param deletable 是否支持删除操作（导航栏显示删除按钮）
  @param delegate 代理
  */
 + (void)showWithImages:(NSArray *)imageArray beginIndex:(NSUInteger)index deletable:(BOOL)deletable delegate:(id<HZYImageScanViewDelegate>)delegate;
@@ -49,5 +48,6 @@
 @property (nonatomic, assign) BOOL enableNavigationBar;
 /// 点按退出，默认NO
 @property (nonatomic, assign) BOOL tapToDismiss;
+
 - (void)showWithAnimation;
 @end

@@ -24,7 +24,7 @@
     [super viewDidLoad];
     [[SDWebImageManager sharedManager].imageCache clearDisk];
     self.imageArray = @[[UIImage imageNamed:@"1"], @"http://www.bz55.com/uploads/allimg/150803/140-150P3150136.jpg", [UIImage imageNamed:@"3"]];
-    self.thumArray = @[[UIImage imageNamed:@"1"], @"http://www.bz55.com/uploads/allimg/150803/140-150P3150136.jpg", [UIImage imageNamed:@"3"]];
+    self.thumArray = @[[UIImage imageNamed:@"1"], [UIImage imageNamed:@"2"], [UIImage imageNamed:@"3"]];
 }
 
 #pragma mark - action
