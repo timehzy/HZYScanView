@@ -321,7 +321,7 @@
         return;
     }
     CGPoint point = [gesture translationInView:self.animateContainerView];
-    CGPoint movedPoint = CGPointMake(self.animateContainerView.center.x+point.x, self.animateContainerView.center.y + point.y);
+    CGPoint movedPoint = CGPointMake(self.animateContainerView.center.x+point.x / 2, self.animateContainerView.center.y + point.y / 2);
     CGFloat change = fabs(movedPoint.y - self.bounds.size.height / 2);//图片到屏幕中间的距离
     CGFloat scale = (self.bounds.size.height - change) / [UIScreen mainScreen].bounds.size.height;
     if (gesture.state == UIGestureRecognizerStateBegan) {
@@ -386,8 +386,8 @@
 }
 
 #pragma mark - UICollectionViewDelegate
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    self.currentIndex = [self.collectionView indexPathsForVisibleItems].lastObject.item;
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    self.currentIndex = scrollView.contentOffset.x / self.bounds.size.width;
     self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", self.currentIndex + 1, self.imageArray.count];
 }
 
