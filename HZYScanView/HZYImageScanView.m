@@ -444,6 +444,7 @@
 
 @implementation hzy_CollectionViewCell{
     UIImageView *_imageView;
+    UIActivityIndicatorView *_loadIndicator;
 }
 
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -485,7 +486,14 @@
     }else{
         imageUrl = [NSURL URLWithString:url];
     }
+    
+    _loadIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+    _loadIndicator.hidesWhenStopped = YES;
+    _loadIndicator.center = _imageView.center;
+    [_loadIndicator startAnimating];
+    [self.contentView addSubview:_loadIndicator];
     [_imageView sd_setImageWithURL:imageUrl placeholderImage:self.thumbImage completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, NSURL *imageURL) {
+        [_loadIndicator stopAnimating];
         _imageView.frame = [self calculateImageViewFullScreenFrameForImage:image];
     }];
 }
