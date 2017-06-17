@@ -133,7 +133,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="1" width="1920" height="1200"/>
+        <image name="1" width="640" height="1136"/>
         <image name="2" width="1920" height="1200"/>
         <image name="3" width="668" height="1000"/>
         <image name="4" width="690" height="1039"/>

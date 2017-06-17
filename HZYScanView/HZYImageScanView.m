@@ -79,7 +79,7 @@
     width = self.animateImageViewBigSize.width;
     [UIView animateWithDuration:.25 animations:^{
         self.animateContainerView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
-        imageView.frame = CGRectMake(0, (kScreenHeight - height) / 2, width, height);
+        imageView.frame = CGRectMake((kScreenWidth - width) / 2, (kScreenHeight - height) / 2, width, height);
         self.backgroundView.backgroundColor = [self.backgroundView.backgroundColor colorWithAlphaComponent:1];
     } completion:^(BOOL finished) {
         self.collectionView.hidden = NO;
@@ -95,7 +95,7 @@
     if ([self.delegate respondsToSelector:@selector(imageViewFrameAtIndex:forScanView:)]) {
         self.fromRect = [self.delegate imageViewFrameAtIndex:curIndex.item forScanView:self];
     }
-    if (!self.navigationBar.isHidden) {
+    if (self.navigationBarVisible) {
         [self switchNavigationBar];
     }
     [self calculateAnimateImageViewSmallSize:imageView];
@@ -155,7 +155,7 @@
     NSIndexPath *curIndex = [self.collectionView indexPathsForVisibleItems].firstObject;
     UIImageView *imageView = [self imageViewWithIndex:curIndex.item];
     [self caculateFullScreenImageViewSize:imageView];
-    imageView.frame = CGRectMake(0, (kScreenHeight - self.animateImageViewBigSize.height) / 2, self.animateImageViewBigSize.width, self.animateImageViewBigSize.height);
+    imageView.frame = CGRectMake((kScreenWidth - self.animateImageViewBigSize.width) / 2, (kScreenHeight - self.animateImageViewBigSize.height) / 2, self.animateImageViewBigSize.width, self.animateImageViewBigSize.height);
     [self.animateContainerView addSubview:imageView];
 }
 
@@ -355,7 +355,7 @@
 
 #pragma mark - UICollectionViewDelegate
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-    self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", [self.collectionView indexPathsForVisibleItems].firstObject.item + 1, self.imageArray.count];
+    self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", [self.collectionView indexPathsForVisibleItems].lastObject.item + 1, self.imageArray.count];
 }
 
 #pragma mark - Getter & Setter
