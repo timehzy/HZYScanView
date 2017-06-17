@@ -191,10 +191,6 @@
     CGFloat height;
     CGFloat width;
     CGSize size = image.size;
-    if (image.imageOrientation == UIImageOrientationLeft || image.imageOrientation == UIImageOrientationRight) {
-        size.width = image.size.height;
-        size.height = image.size.width;
-    }
     if (size.width / size.height > kScreenWidth / kScreenHeight) {
         //宽超出，将宽缩放到屏幕宽度，高度自适应
         width = kScreenWidth;
@@ -213,10 +209,6 @@
     CGFloat height;
     CGFloat width;
     CGSize size = image.size;
-    if (image.imageOrientation == UIImageOrientationLeft || image.imageOrientation == UIImageOrientationRight) {
-        size.width = image.size.height;
-        size.height = image.size.width;
-    }
     if (size.width > size.height) {
         height = self.fromRect.size.height;
         width = height / size.height * size.width;
@@ -532,10 +524,6 @@
     CGFloat height;
     CGFloat width;
     CGSize size = image.size;
-    if (image.imageOrientation == UIImageOrientationLeft || image.imageOrientation == UIImageOrientationRight) {
-        size.width = image.size.height;
-        size.height = image.size.width;
-    }
     if (size.width / size.height > kScreenWidth / kScreenHeight) {
         //宽超出，将宽缩放到屏幕宽度，高度自适应
         width = kScreenWidth;
