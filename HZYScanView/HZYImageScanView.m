@@ -40,6 +40,7 @@
     if (self = [super initWithFrame:frame]) {
         _deletable = deletable;
         _currentIndex = -1;
+        _enableNavigationBar = YES;
         [self configUI];
     }
     return self;
@@ -84,6 +85,10 @@
     [self.animateContainerView addSubview:imageView];
     CGRect fullScreenRect = [self calculateImageViewFullScreenFrameForImage:imageView.image];
     [self addMaskViewForOriginView];
+    if (!self.enableNavigationBar) {
+        [self switchBackgroundColor];
+        self.backgroundView.backgroundColor = [self.backgroundView.backgroundColor colorWithAlphaComponent:0];
+    }
     [UIView animateWithDuration:.25 animations:^{
         self.animateContainerView.frame = CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
         imageView.frame = fullScreenRect;
@@ -364,8 +369,13 @@
     }
     __weak typeof(self)weakSelf = self;
     cell.singleTapHandler = ^{
-        [weakSelf switchNavigationBar];
-        [weakSelf switchBackgroundColor];
+        if (weakSelf.enableNavigationBar) {
+            [weakSelf switchNavigationBar];
+            [weakSelf switchBackgroundColor];            
+        }
+        if (weakSelf.tapToDismiss) {
+            [weakSelf backBtnTouched];
+        }
     };
     return cell;
 }
@@ -421,7 +431,14 @@
     if ([self.delegate respondsToSelector:@selector(imageViewFrameAtIndex:forScanView:)]) {
         return [self.delegate imageViewFrameAtIndex:curIndex forScanView:self];
     }
-    return CGRectZero;
+    return CGRectMake(kScreenWidth / 2, kScreenHeight / 2, 0, 0);
+}
+
+- (void)setEnableNavigationBar:(BOOL)enableNavigationBar {
+    _enableNavigationBar = enableNavigationBar;
+    if (!enableNavigationBar) {
+        [self.navigationBar removeFromSuperview];
+    }
 }
 @end
 

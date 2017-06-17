@@ -43,6 +43,11 @@
 @property (nonatomic, assign) NSUInteger beginIndex;
 /// 触发全屏浏览的imageView的周边的背景色
 @property (nonatomic, strong) UIColor *fromBackgroundColor;
+/// 导航栏是否显示删除按钮
 @property (nonatomic, assign) BOOL deletable;
+/// 是否显示导航栏
+@property (nonatomic, assign) BOOL enableNavigationBar;
+/// 点按退出，默认NO
+@property (nonatomic, assign) BOOL tapToDismiss;
 - (void)showWithAnimation;
 @end

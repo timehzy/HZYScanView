@@ -19,6 +19,14 @@
 }
     
 - (void)showScanView {
-    [HZYImageScanView showWithImages:@[self.image] beginIndex:0 deletable:NO delegate:self];
+    HZYImageScanView *view = [HZYImageScanView scanViewWithImageArray:@[self.image]];
+    view.delegate = self;
+    view.enableNavigationBar = NO;
+    view.tapToDismiss = YES;
+    [view showWithAnimation];
+}
+
+- (CGRect)imageViewFrameAtIndex:(NSUInteger)index forScanView:(HZYImageScanView *)scanView {
+    return [self.superview convertRect:self.frame toView:[UIApplication sharedApplication].keyWindow];
 }
 @end
