@@ -7,15 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4044273D1EF6250E008AE1CD /* HZYImageScanViewNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 4044273C1EF6250E008AE1CD /* HZYImageScanViewNavigationBar.m */; };
+		404427471EF66CFD008AE1CD /* HZYImageScanView.m in Sources */ = {isa = PBXBuildFile; fileRef = 404427421EF66CFD008AE1CD /* HZYImageScanView.m */; };
+		404427481EF66CFD008AE1CD /* HZYImageScanViewNavigationBar.m in Sources */ = {isa = PBXBuildFile; fileRef = 404427441EF66CFD008AE1CD /* HZYImageScanViewNavigationBar.m */; };
+		404427491EF66CFD008AE1CD /* UIImageView+HZYImageScanView.m in Sources */ = {isa = PBXBuildFile; fileRef = 404427461EF66CFD008AE1CD /* UIImageView+HZYImageScanView.m */; };
 		4CA9D43F1EF2211F00B74784 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D43E1EF2211F00B74784 /* main.m */; };
 		4CA9D4421EF2211F00B74784 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D4411EF2211F00B74784 /* AppDelegate.m */; };
 		4CA9D4451EF2211F00B74784 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D4441EF2211F00B74784 /* ViewController.m */; };
 		4CA9D4481EF2211F00B74784 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CA9D4461EF2211F00B74784 /* Main.storyboard */; };
 		4CA9D44A1EF2211F00B74784 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CA9D4491EF2211F00B74784 /* Assets.xcassets */; };
 		4CA9D44D1EF2211F00B74784 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4CA9D44B1EF2211F00B74784 /* LaunchScreen.storyboard */; };
-		4CA9D4581EF2213300B74784 /* UIImageView+HZYImageScanView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D4551EF2213300B74784 /* UIImageView+HZYImageScanView.m */; };
-		4CA9D4591EF2213300B74784 /* HZYImageScanView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D4561EF2213300B74784 /* HZYImageScanView.m */; };
 		4CA9D4AB1EF2247900B74784 /* NSData+ImageContentType.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D48F1EF2247900B74784 /* NSData+ImageContentType.m */; };
 		4CA9D4AC1EF2247900B74784 /* SDImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D4911EF2247900B74784 /* SDImageCache.m */; };
 		4CA9D4AD1EF2247900B74784 /* SDWebImageCompat.m in Sources */ = {isa = PBXBuildFile; fileRef = 4CA9D4931EF2247900B74784 /* SDWebImageCompat.m */; };
@@ -34,8 +34,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		4044273B1EF6250E008AE1CD /* HZYImageScanViewNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HZYImageScanViewNavigationBar.h; sourceTree = "<group>"; };
-		4044273C1EF6250E008AE1CD /* HZYImageScanViewNavigationBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HZYImageScanViewNavigationBar.m; sourceTree = "<group>"; };
+		404427411EF66CFD008AE1CD /* HZYImageScanView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HZYImageScanView.h; sourceTree = "<group>"; };
+		404427421EF66CFD008AE1CD /* HZYImageScanView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HZYImageScanView.m; sourceTree = "<group>"; };
+		404427431EF66CFD008AE1CD /* HZYImageScanViewNavigationBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HZYImageScanViewNavigationBar.h; sourceTree = "<group>"; };
+		404427441EF66CFD008AE1CD /* HZYImageScanViewNavigationBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HZYImageScanViewNavigationBar.m; sourceTree = "<group>"; };
+		404427451EF66CFD008AE1CD /* UIImageView+HZYImageScanView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+HZYImageScanView.h"; sourceTree = "<group>"; };
+		404427461EF66CFD008AE1CD /* UIImageView+HZYImageScanView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+HZYImageScanView.m"; sourceTree = "<group>"; };
 		4CA9D43A1EF2211F00B74784 /* HZYScanView.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HZYScanView.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4CA9D43E1EF2211F00B74784 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		4CA9D4401EF2211F00B74784 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -46,10 +50,6 @@
 		4CA9D4491EF2211F00B74784 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4CA9D44C1EF2211F00B74784 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		4CA9D44E1EF2211F00B74784 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4CA9D4541EF2213300B74784 /* UIImageView+HZYImageScanView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+HZYImageScanView.h"; sourceTree = "<group>"; };
-		4CA9D4551EF2213300B74784 /* UIImageView+HZYImageScanView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+HZYImageScanView.m"; sourceTree = "<group>"; };
-		4CA9D4561EF2213300B74784 /* HZYImageScanView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = HZYImageScanView.m; sourceTree = "<group>"; };
-		4CA9D4571EF2213300B74784 /* HZYImageScanView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HZYImageScanView.h; sourceTree = "<group>"; };
 		4CA9D48E1EF2247900B74784 /* NSData+ImageContentType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+ImageContentType.h"; sourceTree = "<group>"; };
 		4CA9D48F1EF2247900B74784 /* NSData+ImageContentType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+ImageContentType.m"; sourceTree = "<group>"; };
 		4CA9D4901EF2247900B74784 /* SDImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDImageCache.h; sourceTree = "<group>"; };
@@ -94,6 +94,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		404427401EF66CFD008AE1CD /* HZYImageScanView */ = {
+			isa = PBXGroup;
+			children = (
+				404427411EF66CFD008AE1CD /* HZYImageScanView.h */,
+				404427421EF66CFD008AE1CD /* HZYImageScanView.m */,
+				404427431EF66CFD008AE1CD /* HZYImageScanViewNavigationBar.h */,
+				404427441EF66CFD008AE1CD /* HZYImageScanViewNavigationBar.m */,
+				404427451EF66CFD008AE1CD /* UIImageView+HZYImageScanView.h */,
+				404427461EF66CFD008AE1CD /* UIImageView+HZYImageScanView.m */,
+			);
+			path = HZYImageScanView;
+			sourceTree = "<group>";
+		};
 		4CA9D4311EF2211F00B74784 = {
 			isa = PBXGroup;
 			children = (
@@ -113,7 +126,7 @@
 		4CA9D43C1EF2211F00B74784 /* HZYScanView */ = {
 			isa = PBXGroup;
 			children = (
-				4CA9D45A1EF2214D00B74784 /* HZYScanView */,
+				404427401EF66CFD008AE1CD /* HZYImageScanView */,
 				4CA9D4401EF2211F00B74784 /* AppDelegate.h */,
 				4CA9D4411EF2211F00B74784 /* AppDelegate.m */,
 				4CA9D4431EF2211F00B74784 /* ViewController.h */,
@@ -136,19 +149,6 @@
 				4CA9D43E1EF2211F00B74784 /* main.m */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		4CA9D45A1EF2214D00B74784 /* HZYScanView */ = {
-			isa = PBXGroup;
-			children = (
-				4CA9D4541EF2213300B74784 /* UIImageView+HZYImageScanView.h */,
-				4CA9D4551EF2213300B74784 /* UIImageView+HZYImageScanView.m */,
-				4CA9D4571EF2213300B74784 /* HZYImageScanView.h */,
-				4CA9D4561EF2213300B74784 /* HZYImageScanView.m */,
-				4044273B1EF6250E008AE1CD /* HZYImageScanViewNavigationBar.h */,
-				4044273C1EF6250E008AE1CD /* HZYImageScanViewNavigationBar.m */,
-			);
-			name = HZYScanView;
 			sourceTree = "<group>";
 		};
 		4CA9D48D1EF2247900B74784 /* SDWebImage */ = {
@@ -260,25 +260,25 @@
 			buildActionMask = 2147483647;
 			files = (
 				4CA9D4BB1EF22FAF00B74784 /* SecondViewController.m in Sources */,
+				404427481EF66CFD008AE1CD /* HZYImageScanViewNavigationBar.m in Sources */,
 				4CA9D4B81EF2247900B74784 /* UIView+WebCacheOperation.m in Sources */,
 				4CA9D4B21EF2247900B74784 /* SDWebImagePrefetcher.m in Sources */,
+				404427471EF66CFD008AE1CD /* HZYImageScanView.m in Sources */,
 				4CA9D4B61EF2247900B74784 /* UIImageView+HighlightedWebCache.m in Sources */,
 				4CA9D4B01EF2247900B74784 /* SDWebImageDownloaderOperation.m in Sources */,
-				4044273D1EF6250E008AE1CD /* HZYImageScanViewNavigationBar.m in Sources */,
 				4CA9D4451EF2211F00B74784 /* ViewController.m in Sources */,
 				4CA9D4421EF2211F00B74784 /* AppDelegate.m in Sources */,
 				4CA9D4AE1EF2247900B74784 /* SDWebImageDecoder.m in Sources */,
 				4CA9D4AB1EF2247900B74784 /* NSData+ImageContentType.m in Sources */,
 				4CA9D4B71EF2247900B74784 /* UIImageView+WebCache.m in Sources */,
 				4CA9D4AC1EF2247900B74784 /* SDImageCache.m in Sources */,
-				4CA9D4591EF2213300B74784 /* HZYImageScanView.m in Sources */,
 				4CA9D4B11EF2247900B74784 /* SDWebImageManager.m in Sources */,
 				4CA9D4AF1EF2247900B74784 /* SDWebImageDownloader.m in Sources */,
 				4CA9D4B41EF2247900B74784 /* UIImage+GIF.m in Sources */,
 				4CA9D4B51EF2247900B74784 /* UIImage+MultiFormat.m in Sources */,
 				4CA9D4AD1EF2247900B74784 /* SDWebImageCompat.m in Sources */,
-				4CA9D4581EF2213300B74784 /* UIImageView+HZYImageScanView.m in Sources */,
 				4CA9D4B31EF2247900B74784 /* UIButton+WebCache.m in Sources */,
+				404427491EF66CFD008AE1CD /* UIImageView+HZYImageScanView.m in Sources */,
 				4CA9D43F1EF2211F00B74784 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
