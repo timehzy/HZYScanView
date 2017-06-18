@@ -8,9 +8,10 @@
 
 #import "HZYImageScanView.h"
 #import "UIImageView+WebCache.h"
+#import "HZYImageScanViewNavigationBar.h"
 
-#define kScreenWidth [UIScreen mainScreen].bounds.size.width
-#define kScreenHeight [UIScreen mainScreen].bounds.size.height
+#define kScreenWidth [UIApplication sharedApplication].keyWindow.bounds.size.width
+#define kScreenHeight [UIApplication sharedApplication].keyWindow.bounds.size.height
 
 @interface HZYImageScanView ()<UICollectionViewDelegate, UICollectionViewDataSource>
 @property (nonatomic, strong) NSMutableArray *imageArray;
@@ -18,13 +19,12 @@
 @property (nonatomic, readonly) CGRect fromRect;
 @property (nonatomic, weak) UICollectionView *collectionView;
 @property (nonatomic, weak) UIView *backgroundView;
-@property (nonatomic, weak) UIView *navigationBar;
+@property (nonatomic, weak) HZYImageScanViewNavigationBar *navigationBar;
 @property (nonatomic, weak) UIView *animateContainerView;
 @property (nonatomic, weak) UIView *originMaskView;
-@property (nonatomic, weak) UILabel *titleLabel;
-@property (nonatomic, assign) BOOL navigationBarVisible;
 @property (nonatomic, assign) NSUInteger currentIndex;
 @property (nonatomic, assign) BOOL canDragToDismss;
+@property (nonatomic, assign) BOOL panning;
 @end
 
 @interface hzy_CollectionViewCell : UICollectionViewCell<UIScrollViewDelegate>
@@ -40,26 +40,53 @@
 - (instancetype)initWithFrame:(CGRect)frame deletable:(BOOL)deletable {
     if (self = [super initWithFrame:frame]) {
         _deletable = deletable;
-        _currentIndex = -1;
         _enableNavigationBar = YES;
         _canDragToDismss = YES;
         [self configUI];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(relayout:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
     }
+    
     return self;
+}
+
+#pragma mark - notification
+- (void)relayout:(NSNotification *)noty {
+    NSInteger orient = [noty.userInfo[UIApplicationStatusBarOrientationUserInfoKey] integerValue];
+    self.frame = [UIApplication sharedApplication].keyWindow.bounds;
+    self.backgroundView.frame = self.bounds;
+    self.animateContainerView.frame = self.bounds;
+    CGRect frame = self.navigationBar.frame;
+    frame.size.width = self.bounds.size.width;
+    if (orient == 1) {
+        // 水平方向
+        frame.size.height -= 20;
+    }else{
+        frame.size.height += 20;
+    }
+    self.navigationBar.frame = frame;
+    
+    CGRect collectionViewFrame = self.bounds;
+    collectionViewFrame.size.width += 16;
+    NSInteger index = self.currentIndex;
+    self.collectionView.frame = collectionViewFrame;
+    ((UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout).itemSize = collectionViewFrame.size;
+    [self.collectionView scrollToItemAtIndexPath:[NSIndexPath indexPathForItem:index inSection:0] atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
 }
 
 #pragma mark - Public Method
 + (void)showWithImages:(NSArray *)imageArray beginIndex:(NSUInteger)index deletable:(BOOL)deletable delegate:(id<HZYImageScanViewDelegate>)delegate {
-    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds deletable:deletable];
+    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIApplication sharedApplication].keyWindow.bounds deletable:deletable];
     scanView.beginIndex = index;
+    scanView.currentIndex = index;
     scanView.imageArray = [imageArray mutableCopy];
     scanView.delegate = delegate;
     [scanView showWithAnimation];
 }
 
 + (void)showWithImages:(NSArray *)imageArray thumbs:(NSArray *)thumbsArray beginIndex:(NSUInteger)index deletable:(BOOL)deletable delegate:(id<HZYImageScanViewDelegate>)delegate {
-    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds deletable:deletable];
+    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIApplication sharedApplication].keyWindow.bounds deletable:deletable];
     scanView.beginIndex = index;
+    scanView.currentIndex = index;
     scanView.imageArray = [imageArray mutableCopy];
     scanView.thumbArray = [thumbsArray mutableCopy];
     scanView.delegate = delegate;
@@ -67,7 +94,7 @@
 }
 
 + (instancetype)scanViewWithImageArray:(NSArray *)imageArray {
-    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIScreen mainScreen].bounds deletable:NO];
+    HZYImageScanView *scanView = [[HZYImageScanView alloc] initWithFrame:[UIApplication sharedApplication].keyWindow.bounds deletable:NO];
     scanView.imageArray = [imageArray mutableCopy];
     return scanView;
 }
@@ -77,6 +104,7 @@
     [self configBackgroundView];
     [self configCollectionView];
     [self configNavigationBar];
+    [self addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)]];
 }
 
 - (void)showWithAnimation {
@@ -106,7 +134,7 @@
 
 - (void)dismissWithAnimation {
     UIImageView *imageView = self.animateContainerView.subviews.firstObject;
-    if (self.navigationBarVisible) {
+    if (!self.navigationBar.hidden) {
         [self switchNavigationBar];
     }
     CGRect smallFrame = [self calculateImageViewSmallFrameForImage:imageView.image];
@@ -121,14 +149,18 @@
 }
 
 - (void)switchNavigationBar {
-    [UIView animateWithDuration:.25 animations:^{
-        if (self.navigationBarVisible) {
-            self.navigationBar.transform = CGAffineTransformIdentity;
-        }else{
+    if (self.navigationBar.isHidden) {
+        self.navigationBar.hidden = !self.navigationBar.hidden;
+        [UIView animateWithDuration:.25 animations:^{
             self.navigationBar.transform = CGAffineTransformMakeTranslation(0, 68);
-        }
-    }];
-    self.navigationBarVisible = !self.navigationBarVisible;
+        }];
+    }else{
+        [UIView animateWithDuration:.25 animations:^{
+            self.navigationBar.transform = CGAffineTransformIdentity;
+        } completion:^(BOOL finished) {
+            self.navigationBar.hidden = !self.navigationBar.hidden;
+        }];
+    }
 }
     
 - (void)switchBackgroundColor {
@@ -178,6 +210,10 @@
         if ([self.imageArray[index] isKindOfClass:[UIImage class]]) {
             imageView = [[UIImageView alloc] initWithImage:self.imageArray[index]];
         }else{
+            UIImage *image = [[SDWebImageManager sharedManager].imageCache imageFromMemoryCacheForKey:self.imageArray[index]];
+            if (!image) {
+                image = [[SDWebImageManager sharedManager].imageCache imageFromDiskCacheForKey:self.imageArray[index]];
+            }
             imageView = [UIImageView new];
         }
     }
@@ -243,36 +279,23 @@
 }
 
 - (void)configNavigationBar {
-    UIView *naviBar = [[UIView alloc] initWithFrame:CGRectMake(0, -68, self.bounds.size.width, 64)];
-    naviBar.layer.shadowColor = [UIColor lightGrayColor].CGColor;
-    naviBar.layer.shadowOpacity = .3;
-    naviBar.layer.shadowOffset = CGSizeMake(0, 2);
-    naviBar.layer.shadowRadius = 2;
-    naviBar.backgroundColor = [UIColor whiteColor];
-    [self addSubview:naviBar];
-    self.navigationBar = naviBar;
-    
-    UILabel *titleLabel = [[UILabel alloc] initWithFrame:CGRectMake((self.bounds.size.width - 100) / 2, 20, 100, 44)];
-    titleLabel.textAlignment = NSTextAlignmentCenter;
-    [naviBar addSubview:titleLabel];
-    self.titleLabel = titleLabel;
-    
-    if (_deletable) {
-        UIButton *deleteBtn = [[UIButton alloc] initWithFrame:CGRectMake(self.bounds.size.width - 44, 20, 44, 44)];
-        [deleteBtn setTitle:@"删除" forState:UIControlStateNormal];
-        [deleteBtn setTitleColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
-        [deleteBtn addTarget:self action:@selector(deleteImage) forControlEvents:UIControlEventTouchUpInside];
-        deleteBtn.titleEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 0);
-        [naviBar addSubview:deleteBtn];
+    HZYImageScanViewNavigationBarOrientation orient;
+    if ([UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeLeft ||
+        [UIApplication sharedApplication].statusBarOrientation == UIInterfaceOrientationLandscapeRight) {
+        orient = HZYImageScanViewNavigationHorizontal;
+    }else{
+        orient = HZYImageScanViewNavigationVertical;
     }
-    
-    UIButton *backBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, 20, 44, 44)];
-    [backBtn setImage:[UIImage imageNamed:@"navgationBackImg"] forState:UIControlStateNormal];
-    [backBtn addTarget:self action:@selector(backBtnTouched) forControlEvents:UIControlEventTouchUpInside];
-    backBtn.imageEdgeInsets = UIEdgeInsetsMake(0, -4, 0, 0);
-    [naviBar addSubview:backBtn];
-    
-    [self addGestureRecognizer:[[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(panGesture:)]];
+    HZYImageScanViewNavigationBar *navi = [HZYImageScanViewNavigationBar navigationBarForOrigentation:orient];
+    __weak typeof(self)weakSelf = self;
+    navi.deleteBtnAction = ^{
+        [weakSelf deleteImage];
+    };
+    navi.backBtnAction = ^{
+        [weakSelf backBtnTouched];
+    };
+    [self addSubview:navi];
+    self.navigationBar = navi;
 }
 
 - (void)configBackgroundView {
@@ -299,7 +322,7 @@
         }else{
             index = curIndex.item + 1;
         }
-        self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", index, self.imageArray.count];
+        self.navigationBar.title = [NSString stringWithFormat:@"%zd/%zd", index, self.imageArray.count];
     }
 }
     
@@ -312,10 +335,11 @@
     if (!self.canDragToDismss) {
         return;
     }
+    self.panning = YES;
     CGPoint point = [gesture translationInView:self.animateContainerView];
     CGPoint movedPoint = CGPointMake(self.animateContainerView.center.x+point.x / 2, self.animateContainerView.center.y + point.y / 2);
     CGFloat change = fabs(movedPoint.y - self.bounds.size.height / 2);//图片到屏幕中间的距离
-    CGFloat scale = (self.bounds.size.height - change) / [UIScreen mainScreen].bounds.size.height;
+    CGFloat scale = (self.bounds.size.height - change) / [UIApplication sharedApplication].keyWindow.bounds.size.height;
     if (gesture.state == UIGestureRecognizerStateBegan) {
         [self showAnimateContainerView];
     }else if (gesture.state == UIGestureRecognizerStateChanged) {
@@ -329,6 +353,7 @@
         }else{
             [self resumeDismissPanAnimation];
         }
+        self.panning = NO;
     }
 }
 
@@ -380,7 +405,7 @@
 #pragma mark - UICollectionViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     self.currentIndex = scrollView.contentOffset.x / self.bounds.size.width;
-    self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", self.currentIndex + 1, self.imageArray.count];
+    self.navigationBar.title = [NSString stringWithFormat:@"%zd/%zd", self.currentIndex + 1, self.imageArray.count];
 }
 
 #pragma mark - Getter & Setter
@@ -397,7 +422,7 @@
         }
         NSAssert([image isKindOfClass:[NSString class]] || [image isKindOfClass:[UIImage class]], @"imageArray must only contain NSURL or NSString or UIImage object");
     }
-    self.titleLabel.text = [NSString stringWithFormat:@"%zd/%zd", self.beginIndex + 1, imageArray.count];
+    self.navigationBar.title = [NSString stringWithFormat:@"%zd/%zd", self.beginIndex + 1, imageArray.count];
     [self.collectionView reloadData];
 }
 
@@ -422,9 +447,6 @@
 
 - (CGRect)fromRect {
     NSUInteger curIndex = self.currentIndex;
-    if (curIndex == -1) {
-        curIndex = self.beginIndex;
-    }
     if ([self.delegate respondsToSelector:@selector(imageViewFrameAtIndex:forScanView:)]) {
         return [self.delegate imageViewFrameAtIndex:curIndex forScanView:self];
     }
@@ -433,9 +455,7 @@
 
 - (void)setEnableNavigationBar:(BOOL)enableNavigationBar {
     _enableNavigationBar = enableNavigationBar;
-    if (!enableNavigationBar) {
-        [self.navigationBar removeFromSuperview];
-    }
+    [self.navigationBar removeFromSuperview];
 }
 @end
 
@@ -452,8 +472,14 @@
     return self;
 }
 
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    _scrollView.frame = [UIApplication sharedApplication].keyWindow.bounds;
+    _imageView.frame = [self calculateImageViewFullScreenFrameForImage:_imageView.image];
+}
+
 - (void)configUI {
-    _scrollView = [[UIScrollView alloc] initWithFrame:[UIScreen mainScreen].bounds];
+    _scrollView = [[UIScrollView alloc] initWithFrame:[UIApplication sharedApplication].keyWindow.bounds];
     _scrollView.maximumZoomScale = 2;
     _scrollView.delegate = self;
     _scrollView.contentInset = UIEdgeInsetsZero;
