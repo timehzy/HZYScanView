@@ -1,6 +1,8 @@
 # HZYScanView
 图片全屏浏览，支持单张或多张图片，动画和交互效果完美
 
+demo:https://www.haozhenyi.com/wp-content/uploads/2017/06/demo.mov
+
 很多app都有全屏查看图片的需求，这个看似简单的功能却很少有app做得完善。我个人使用过的只有苹果原生的照片app，twitter和facebook令我满意。于是趁着最近公司项目需要做这个功能，撸了一个轮子，交互和动画都是高仿照片app，并且使用很简单。
 
 我提供了一个UIImageVIew的分类，如果仅仅只要一个imageView的图片可以被全屏查看，那么只要入头文件说明，在imageView初始化的时候调用即可
